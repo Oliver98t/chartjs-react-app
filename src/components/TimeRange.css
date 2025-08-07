@@ -1,0 +1,24 @@
+.time-range-selector {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.time-range-selector label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #00f0ff;
+}
+
+.time-range-selector input[type="date"] {
+  padding: 6px 8px;
+  border: 1px solid #444;
+  background-color: #111;
+  color: #fff;
+  font-family: inherit;
+  border-radius: 4px;
+}
