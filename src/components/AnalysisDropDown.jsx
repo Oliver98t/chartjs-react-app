@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AnalysisDropDown.css';
+import './DropDown.css';
 
 const AnalysisDropDown = ({ label, onSelect }) => {
   const [selectedOption, setSelectedOption] = useState('');
@@ -29,11 +29,12 @@ const AnalysisDropDown = ({ label, onSelect }) => {
   const handleChange = (e) => {
     const selected = e.target.value;
     setSelectedOption(selected);
-    onSelect(selected); // Send value up to parent
+    const formatted = selected.toLowerCase().replace(/ /g, '_'); 
+    onSelect(formatted); // Send value up to parent
   };
 
   return (
-    <div>
+    <div className='DropDown'>
       <label htmlFor="AnalysisDropDown"></label>
       <select id="AnalysisDropDown" value={selectedOption} onChange={handleChange}>
         <option value="" disabled>{label}</option>

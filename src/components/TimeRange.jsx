@@ -13,11 +13,9 @@ const TimeRangeSelector = ({ startDate, endDate, onChange }) => {
   return (
     <div className="time-range-selector">
       <label>
-        Start Date:
         <input type="date" value={startDate} onChange={handleStartChange} />
       </label>
       <label>
-        End Date:
         <input type="date" value={endDate} onChange={handleEndChange} />
       </label>
     </div>

@@ -1,0 +1,9 @@
+.CurrencyDropDown {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  font-family: 'Orbitron', sans-serif;
+  color: #f7f7a1;
+}

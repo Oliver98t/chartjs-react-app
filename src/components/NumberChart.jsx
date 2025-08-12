@@ -1,104 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
+// NumberChart.jsx
+import React, { useRef, useEffect } from 'react';
 import {
-  Chart as ChartJS,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import './NumberChart.css'; // import CSS file
+  lightningChart,
+  AxisTickStrategies,
+  UIElementBuilders,
+  UIDraggingModes,
+  Themes,
+  emptyLine,
+  SolidLine,
+} from '@lightningchart/lcjs';
+import './NumberChart.css';
 
-ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
+const LIGHTNING_KEY = import.meta.env.VITE_LIGHTNING_KEY;
 
-const NumberChart = ({ ticker, startDate, endDate }) => {
-  const [numbers, setNumbers] = useState([]);
-  const [labels, setLabels] = useState([]);
+async function cryptoCalcApi(ticker, startDate, endDate, requests) {
+  const data = [];
+  for (const request of requests) {
+    const unixStartMs = new Date(`${startDate}T00:00:00Z`).getTime();
+    const fromTs = Math.floor(unixStartMs / 1000);
+    const unixEndMs = new Date(`${endDate}T00:00:00Z`).getTime();
+    const toTs = Math.floor(unixEndMs / 1000);
+
+    const [crypto, fiat] = ticker.split('/');
+    let url = `http://localhost:8000/ohlcv/${request.endPoint}/?pair=${crypto}/${fiat}&from_ts=${fromTs}&to_ts=${toTs}`;
+    if (request.option) url += `&${request.option}`;
+
+    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error('Network response was not ok');
+    const json = await res.json();
+
+    // Build a friendly legend label
+    let legend = request.endPoint.replace('_', ' ');
+    if (request.option) {
+      const [value] = request.option.match(/-?\d+(\.\d+)?/g);
+      const [unit] = request.option.split('_');
+      legend = `${value} ${unit} ${legend}`;
+    }
+
+    data.push({ ticker: legend, data: json.data });
+  }
+  return data;
+}
+
+const NumberChart = ({ ticker, startDate, endDate, requests }) => {
+  const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     if (!ticker.includes('/')) return;
-    
-    const unix_start_ts_ms = new Date(`${startDate}T00:00:00Z`).getTime()
-    const from_ts = Math.floor(unix_start_ts_ms / 1000)
-    console.log(from_ts)
 
-    const unix_end_ts_ms = new Date(`${endDate}T00:00:00Z`).getTime()
-    const to_ts = Math.floor(unix_end_ts_ms / 1000)
-    console.log(to_ts)
-
-    const [crypto, fiat] = ticker.split('/');
-
-    fetch(`http://localhost:8000/ohlcv/pair_data/?pair=${crypto}/${fiat}&from_ts=${from_ts}&to_ts=${to_ts}`, {
-      headers: { Accept: 'application/json' }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then(data => {
-        const series = data['data'];
-        const prices = series.map(d => d.price);
-        const timeLabels = series.map(d => {
-          const date = new Date(d.timestamp * 1000);
-          return date.toLocaleDateString('en-GB');
-        });
+    // Fetch data, then build the chart
+    cryptoCalcApi(ticker, startDate, endDate, requests)
+      .then((apiDataSets) => {
+        // Dispose any prior chart
+        chartRef.current?.dispose();
         
-        setNumbers(prices);
-        setLabels(timeLabels);
+        // Create a new ChartXY in the container
+        const chart = lightningChart({
+            license: LIGHTNING_KEY,
+            licenseInformation: {
+                appTitle: "LightningChart JS Trial",
+                company: "LightningChart Ltd."
+            },
+          // You can swap Themes.darkNew for dark mode
+          theme: Themes.darkNew,
+        }).ChartXY({
+          
+          container: chartContainerRef.current,
+          // Disable auto cursor legend if you want custom legends
+          // disableAxisGestures: false,
+        });
+        chartRef.current = chart;
+
+        // Configure X axis for DateTime
+        chart.setTitle(ticker)
+        const axisX = chart.getDefaultAxisX();
+        
+
+        axisX
+          .setTickStrategy(AxisTickStrategies.DateTime)
+          .setTitle('Date')
+          .setTitleFont((font) => font.setSize(16));
+
+        // Configure Y axis title
+        chart.getDefaultAxisY().setTitle('Fiat Price').setTitleFont((font) => font.setSize(16));
+
+        // Add a line series for each dataset
+        apiDataSets.forEach((set, i) => {
+          if (!Array.isArray(set.data) || set.data.length === 0) return;
+
+          const formatted = set.data.map((d) => ({
+            x: d.timestamp * 1000,
+            y: d.price,
+          }));
+
+          const series = chart.addLineSeries({
+              strokeStyle: new SolidLine({
+                thickness: 2,
+              }),
+              pointStyle: emptyLine, // no point markers
+            })
+            .setName(set.ticker)
+            .appendJSON(formatted);
+        });
       })
-      .catch(err => {
-        console.error('Error fetching OHLCV data:', err);
-        setNumbers([]);
-        setLabels([]);
+      .catch((err) => {
+        console.error('Error fetching or rendering data:', err);
       });
-  }, [ticker, startDate, endDate]);
 
-  const chartData = {
-    labels: labels,
-    datasets: [
-      {
-        label: ticker,
-        data: numbers,
-        fill: false,
-        borderColor: 'rgba(75,192,192,1)',
-        tension: 0.1,
-      },
-    ],
-  };
+    // Cleanup on unmount or before next render
+    return () => {
+      chartRef.current?.dispose();
+      chartRef.current = null;
+    };
+  }, [ticker, startDate, endDate, requests]);
 
-    const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Timestamp', // Replace with your preferred label
-          font: {
-            size: 16
-          }
-        }
-      },
-      y: {
-        title: {
-          display: true,
-          text: 'Fiat Price', // Customize to match your data
-          font: {
-            size: 16
-          }
-        }
-      }
-    }
-  };
-
-  return (
-    <div className="chart-container">
-      <Line data={chartData} options={chartOptions} />
-    </div>
-  );
+  return <div ref={chartContainerRef} className="chart-container" />;
 };
 
 export default NumberChart;

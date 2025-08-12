@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './CurrencyDropDown.css';
+import './DropDown.css';
 
 const CurrencyDropDown = ({ label, currency_type, onSelect }) => {
   const [selectedOption, setSelectedOption] = useState('');
@@ -33,7 +33,7 @@ const CurrencyDropDown = ({ label, currency_type, onSelect }) => {
   };
 
   return (
-    <div>
+    <div className='DropDown'>
       <label htmlFor="CurrencyDropDown"></label>
       <select id="CurrencyDropDown" value={selectedOption} onChange={handleChange}>
         <option value="" disabled>{label}</option>
