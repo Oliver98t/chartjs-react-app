@@ -29,8 +29,16 @@ const AnalysisDropDown = ({ label, onSelect }) => {
   const handleChange = (e) => {
     const selected = e.target.value;
     setSelectedOption(selected);
-    const formatted = selected.toLowerCase().replace(/ /g, '_'); 
-    onSelect(formatted); // Send value up to parent
+    
+    if(selected != 'RSI')
+    {
+      const formatted = selected.toLowerCase().replace(/ /g, '_'); 
+      onSelect(formatted); // Send value up to parent
+    }
+    else
+    {
+      onSelect(selected); // Send value up to parent
+    }
   };
 
   return (

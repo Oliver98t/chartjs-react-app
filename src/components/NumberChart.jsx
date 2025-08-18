@@ -24,7 +24,7 @@ async function cryptoCalcApi(ticker, startDate, endDate, requests) {
     const [crypto, fiat] = ticker.split('/');
     let url = `http://localhost:8000/ohlcv/${request.endPoint}/?pair=${crypto}/${fiat}&from_ts=${fromTs}&to_ts=${toTs}`;
     if (request.option) url += `&${request.option}`;
-
+    console.log(url);
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
     if (!res.ok) throw new Error('Network response was not ok');
     const json = await res.json();
