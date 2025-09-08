@@ -54,7 +54,7 @@ const NumberChart = ({ ticker, startDate, endDate, requests }) => {
       .then((apiDataSets) => {
         // Dispose any prior chart
         chartRef.current?.dispose();
-        
+
         // Create a new ChartXY in the container
         const chart = lightningChart({
             license: LIGHTNING_KEY,
@@ -65,7 +65,7 @@ const NumberChart = ({ ticker, startDate, endDate, requests }) => {
           // You can swap Themes.darkNew for dark mode
           theme: Themes.darkNew,
         }).ChartXY({
-          
+
           container: chartContainerRef.current,
           // Disable auto cursor legend if you want custom legends
           // disableAxisGestures: false,
@@ -75,7 +75,7 @@ const NumberChart = ({ ticker, startDate, endDate, requests }) => {
         // Configure X axis for DateTime
         chart.setTitle(ticker)
         const axisX = chart.getDefaultAxisX();
-        
+
 
         axisX
           .setTickStrategy(AxisTickStrategies.DateTime)
@@ -86,7 +86,7 @@ const NumberChart = ({ ticker, startDate, endDate, requests }) => {
         chart.getDefaultAxisY().setTitle('Fiat Price').setTitleFont((font) => font.setSize(16));
 
         // Add a line series for each dataset
-        apiDataSets.forEach((set, i) => {
+        apiDataSets.forEach((set) => {
           if (!Array.isArray(set.data) || set.data.length === 0) return;
 
           const formatted = set.data.map((d) => ({
@@ -94,7 +94,7 @@ const NumberChart = ({ ticker, startDate, endDate, requests }) => {
             y: d.price,
           }));
 
-          const series = chart.addLineSeries({
+          chart.addLineSeries({
               strokeStyle: new SolidLine({
                 thickness: 2,
               }),
