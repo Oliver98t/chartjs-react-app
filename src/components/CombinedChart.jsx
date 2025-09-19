@@ -7,7 +7,8 @@ import OptionDropDown from './OptionDropDown.jsx';
 import './CombinedChart.css';
 
 
-
+// TODO add RSI analysis
+// TODO market sentiment
 const options = {
   default:          { data: [null],
                       urlToDisp_handler: null, 
@@ -80,7 +81,7 @@ const CombinedChart = () => {
   const handleCrypto = (value) => {
     setCrypto(value);
   };
-
+  
   const handleFiat = (value) => {
     setFiat(value);
   };
@@ -100,7 +101,7 @@ const CombinedChart = () => {
 
   const ticker = crypto && fiat ? `${crypto}/${fiat}` : 'placeholder';
   
-
+    // TODO add market sentiment gauge
   return (
     <div>
 
@@ -153,6 +154,7 @@ const CombinedChart = () => {
             onSelect={handleOption}
           />
         </div>
+        
 
       </div>
     </div>

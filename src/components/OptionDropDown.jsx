@@ -6,27 +6,27 @@ const OptionDropDown = ({ label, onSelect, options }) => {
   const [processedOptions, setProcessedOptions] = useState([]);
   
   useEffect(() => {
-    
+
     if(options.urlToDisp_handler == null)
     {
       setProcessedOptions(options.data);
     }
     else
     {
-      const p = options.data.map((input) => {
-        const args = options.urlToDisp_handler(input);
-        return `${args.amount} ${args.interval.replace('_ma','s')}`;
-      });
-      setProcessedOptions(p);
+		const p = options.data.map((input) => {
+            const args = options.urlToDisp_handler(input);
+            return `${args.amount} ${args.interval.replace('_ma','s')}`;
+        });
+        setProcessedOptions(p);
     }
 
   }, [options]);
 
-  const handleChange = (e) => {
-    const selected = e.target.value;
-    setSelectedOption(selected);
-    onSelect(selected); // Send value up to parent
-  };
+    const handleChange = (e) => {
+        const selected = e.target.value;
+        setSelectedOption(selected);
+        onSelect(selected); // Send value up to parent
+    };
 
   return (
     <div className='DropDown'>

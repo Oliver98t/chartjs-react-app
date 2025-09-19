@@ -19,7 +19,7 @@ async function cryptoCalcApi(ticker, startDate, endDate, requests) {
     const unixStartMs = new Date(`${startDate}T00:00:00Z`).getTime();
     const fromTs = Math.floor(unixStartMs / 1000);
     const unixEndMs = new Date(`${endDate}T00:00:00Z`).getTime();
-    const toTs = Math.floor(unixEndMs / 1000);
+	const toTs = Math.floor(unixEndMs / 1000);
 
     const [crypto, fiat] = ticker.split('/');
     let url = `http://localhost:8000/ohlcv/${request.endPoint}/?pair=${crypto}/${fiat}&from_ts=${fromTs}&to_ts=${toTs}`;
